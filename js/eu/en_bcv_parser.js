@@ -658,6 +658,124 @@
       return true;
     };
 
+    bcv_parser.prototype.headless = function() {
+      var osises, type, _i, _len, _ref;
+      this.set_options({
+        sequence_combination_strategy: "separate",
+        osis_compaction_strategy: "bc",
+        case_sensitive: "books"
+      });
+      osises = this.osis_and_indices();
+      _ref = ["chapters", "numbers", "verses"];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        type = _ref[_i];
+        this.handle_extra(type, osises, s);
+      }
+      return osises;
+    };
+
+    bcv_parser.prototype.handle_extra = function(type, osises, s) {
+      var extra, match, out, previous, re, start;
+      if (type === "numbers") {
+        start = "\\d+[:]\\d";
+      }
+      if (type === "verses") {
+        start = "v(?:erses?|er|v|s?s?)";
+      }
+      if (type === "chapters") {
+        start = "ch(?:apters?|a?pts?|a?p?s|aps?|\\b)";
+      }
+      out = [];
+      re = RegExp("\\b" + start + "(?:ch(?:apters?|a?pts?|a?p?s|aps?|\\b)|a(?:nd|lso)|[\\d\\s.:,;a-e&\\(\\)\\[\\]\"=\\-\\u2013\\u2014]|ff?\\b|see|v(?:erses?|er|v|s?s?))+\\w*", "gi");
+      while (match = re.exec(s)) {
+        if (!/\d/.test(match[0])) {
+          continue;
+        }
+        previous = this.get_previous_osis(osises, match.index);
+        if (previous) {
+          out.push({
+            indices: [match.index, match.index + match[0].length],
+            value: match[0],
+            prev: previous
+          });
+        }
+        extra = this.handle_extra_result(osises, match[0], match.index);
+      }
+      return out;
+    };
+
+    bcv_parser.prototype.get_previous_osis = function(osises, index) {
+      var osis, previous, _i, _len;
+      previous = "";
+      for (_i = 0, _len = osises.length; _i < _len; _i++) {
+        osis = osises[_i];
+        if (index >= osis.indices[0] && index <= osis.indices[1]) {
+          return "";
+        }
+        if (index < osis.indices[0]) {
+          return previous;
+        }
+        previous = osis.osis;
+      }
+      if (!previous.match(/\d\.\d$/)) {
+        previous += ".1";
+      }
+      return previous;
+    };
+
+    bcv_parser.prototype.handle_extra_result = function(osises, s, index) {
+      var offset, previous, result, results, _i, _len;
+      previous = this.get_previous_osis(osises, index);
+      if (previous.length === 0) {
+        return;
+      }
+      this.set_options({
+        consecutive_combination_strategy: "separate"
+      });
+      previous += ",";
+      results = this.parse(previous + s).osis_and_indices();
+      results.shift();
+      for (_i = 0, _len = results.length; _i < _len; _i++) {
+        result = results[_i];
+        offset = index - previous.length;
+        result.indices[0] += offset;
+        result.indices[1] += offset;
+        result.extra = true;
+        if (!this.index_already_exists(osises, result.indices[0])) {
+          osises.push(result);
+        }
+      }
+      this.sort_osises(osises);
+      this.set_options({
+        consecutive_combination_strategy: "combine"
+      });
+      return osises;
+    };
+
+    bcv_parser.prototype.index_already_exists = function(osises, index) {
+      var osis, _i, _len;
+      for (_i = 0, _len = osises.length; _i < _len; _i++) {
+        osis = osises[_i];
+        if (osis.indices[0] === index) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    bcv_parser.prototype.sort_osises = function(osises) {
+      osises.sort(function(a, b) {
+        if (a.indices[0] < b.indices[0]) {
+          return -1;
+        }
+        if (a.indices[0] > b.indices[0]) {
+          return 1;
+        }
+        return 0;
+      });
+      return osises.length;
+    };
+
     return bcv_parser;
 
   })();
