@@ -580,9 +580,9 @@ class bcv_parser
 	        ///gi
 	    while match = re.exec s
 	        continue unless /\d/.test match[0]
-	        previous = get_previous_osis osises, match.index
+	        previous = @get_previous_osis(osises, match.index)
 	        out.push {indices: [match.index, match.index + match[0].length], value: match[0], prev: previous} if previous
-	        extra = handle_extra_result osises, match[0], match.index
+	        extra = @handle_extra_result(osises, match[0], match.index)
 	    out
 
 	get_previous_osis: (osises, index) ->
@@ -596,11 +596,11 @@ class bcv_parser
 	    previous
 
 	handle_extra_result: (osises, s, index) ->
-	    previous = get_previous_osis osises, index
+	    previous = @get_previous_osis(osises, index)
 	    return if previous.length is 0
-	    bcv.set_options consecutive_combination_strategy: "separate"
+	    @set_options consecutive_combination_strategy: "separate"
 	    previous += ","
-	    results = bcv.parse(previous + s).osis_and_indices()
+	    results = @parse(previous + s).osis_and_indices()
 	    results.shift()
 	    for result in results
 	        offset = index - previous.length
@@ -608,8 +608,8 @@ class bcv_parser
 	        result.indices[1] += offset
 	        result.extra = true
 	        osises.push result unless index_already_exists(osises, result.indices[0])
-	    sort_osises osises
-	    bcv.set_options consecutive_combination_strategy: "combine"
+	    @sort_osises(osises)
+	    @set_options consecutive_combination_strategy: "combine"
 	    osises
 
 	index_already_exists: (osises, index) ->
