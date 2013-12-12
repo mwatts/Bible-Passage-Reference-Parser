@@ -1,3 +1,34 @@
+## This is a fork!
+
+This is a fork of the (incredibly awesome) [Bible Passage Reference Parser](https://github.com/openbibleinfo/Bible-Passage-Reference-Parser) project by [openbibleinfo](https://github.com/openbibleinfo/) that adds the functionality for parsing "headless" verse references. An example would be:
+
+> One vital item of recovery to which we are committed is the experience of Christ as life. In the writings of John there are many striking statements that reveal the Lord Himself as life and His intention that His believers know Him as life: “I am the way and the reality and the life” (John 14:6), “I am the resurrection and the life” **(11:25)**, “I have come that they may have life” **(10:10)**, and “He who has the Son has the life” (1 John 5:12), to cite just a few. The “life” spoken of by both John and the Lord Jesus is the very uncreated, divine life of God (Eph. 4:18), the eternal life of the Triune God (John 3:15-16), that is embodied in Christ and was lived out through Him while He was on the earth. It is life of another kind, of a source other than our mere human life. It is the life that is imparted into all believers at their regeneration, that is, when they are born again **(v. 6)**. It is the life meant to be experienced and enjoyed by God’s people for their full salvation (Rom. 5:10). It is only by this life and the experience of the unsearchable riches of Christ that the church can manifest and express Christ as a living reality (Eph. 3:8, 10). In the ministry of Watchman Nee and Witness Lee, this life is the basis for all genuine Christian experience. Throughout their writings the eternal, uncreated life of God is made known, made practical, and made experiential. There is no greater need among God’s people, and no matter more crucial, than the experience of Christ as life.
+> (taken from http://an-open-letter.org/)
+
+The bolded references, `John 11:25`, `John 10:10`, and `John 3:6`, are examples of "headless" verse references, references that do not include the book name or sometimes the chapter number. (I don't know if there's an official term for this). This case is not handled by the official [Bible Passage Reference Parser](https://github.com/openbibleinfo/Bible-Passage-Reference-Parser), so that's why this fork exists.
+
+**All the credit for the code belongs to [openbibleinfo](https://github.com/openbibleinfo/), I've simply packaged the functionality into the original library, since it doesn't seem like this feature will make it into the main codebase ([see discussion here](https://github.com/openbibleinfo/Bible-Passage-Reference-Parser/issues/5))**
+
+*This is my first stab at working with CoffeeScript, so if there are obvious errors/inefficiencies (there probably are) please let me know or submit a pull request.*
+
+## Usage
+```
+(in your javascript console)
+js> load("path/to/en_bcv_parser.js")
+js> bcv = new bcv_parser()
+js> s = "string you want to parse"
+js> bcv.parse(s).headless()
+```
+
+#### TODO:
+- add test cases for parsing headless references
+- add flag for parsing headless reference by default
+
+
+**Below is the original documentation reproduced in its entirety:**
+
+---
+
 # Bible Passage Reference Parser
 
 Try a [demo of the Bible passage reference parser](http://www.openbible.info/labs/reference-parser/).
