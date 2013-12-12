@@ -555,6 +555,10 @@ class bcv_parser
 	## see: https://github.com/openbibleinfo/Bible-Passage-Reference-Parser/issues/5#issuecomment-29864952
 
 	headless: ->
+		@set_options
+		    sequence_combination_strategy: "separate"
+		    osis_compaction_strategy: "bc"
+		    case_sensitive: "books"
 		osises = @osis_and_indices()
 		# Do numbers before verses because numbers include a chapter and could change the context for the verses.
 		for type in ["chapters", "numbers", "verses"]
@@ -607,7 +611,7 @@ class bcv_parser
 	        result.indices[0] += offset
 	        result.indices[1] += offset
 	        result.extra = true
-	        osises.push result unless index_already_exists(osises, result.indices[0])
+	        osises.push result unless @index_already_exists(osises, result.indices[0])
 	    @sort_osises(osises)
 	    @set_options consecutive_combination_strategy: "combine"
 	    osises
