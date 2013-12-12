@@ -550,4 +550,79 @@ class bcv_parser
 				break
 		true
 
+	## Functions for parsing headless references
+	## original credit goes to openbibleinfo
+	## see: https://github.com/openbibleinfo/Bible-Passage-Reference-Parser/issues/5#issuecomment-29864952
+
+	headless: ->
+		osises = @osis_and_indices()
+		# Do numbers before verses because numbers include a chapter and could change the context for the verses.
+		for type in ["chapters", "numbers", "verses"]
+			handle_extra(type, osises, s)
+		osises
+
+	handle_extra: (type, osises, s) ->
+	    start = "\\d+[:]\\d" if type is "numbers"
+	    start = "v(?:erses?|er|v|s?s?)" if type is "verses"
+	    start = "ch(?:apters?|a?pts?|a?p?s|aps?|\\b)" if type is "chapters"
+	    out = []
+	    re = ///
+	            \b#{start}
+	            (?:
+	                ch (?:apters?|a?pts?|a?p?s|aps?|\b)
+	              | a (?:nd|lso)
+	              | [\d\s.:,;a-e&\(\)\[\]"=\-\u2013\u2014]
+	              | ff?\b
+	              | see
+	              | v (?:erses?|er|v|s?s?)
+	            )+
+	            \w*
+	        ///gi
+	    while match = re.exec s
+	        continue unless /\d/.test match[0]
+	        previous = get_previous_osis osises, match.index
+	        out.push {indices: [match.index, match.index + match[0].length], value: match[0], prev: previous} if previous
+	        extra = handle_extra_result osises, match[0], match.index
+	    out
+
+	get_previous_osis: (osises, index) ->
+	    previous = ""
+	    for osis in osises
+	        return "" if index >= osis.indices[0] and index <= osis.indices[1]
+	        return previous if index < osis.indices[0]
+	        previous = osis.osis
+	    # Otherwise, "Matt.6,verses 2-3" becomes "Matt.6.2-Matt.6.3"
+	    previous += ".1" unless previous.match /\d\.\d$/;
+	    previous
+
+	handle_extra_result: (osises, s, index) ->
+	    previous = get_previous_osis osises, index
+	    return if previous.length is 0
+	    bcv.set_options consecutive_combination_strategy: "separate"
+	    previous += ","
+	    results = bcv.parse(previous + s).osis_and_indices()
+	    results.shift()
+	    for result in results
+	        offset = index - previous.length
+	        result.indices[0] += offset
+	        result.indices[1] += offset
+	        result.extra = true
+	        osises.push result unless index_already_exists(osises, result.indices[0])
+	    sort_osises osises
+	    bcv.set_options consecutive_combination_strategy: "combine"
+	    osises
+
+	index_already_exists: (osises, index) ->
+	    for osis in osises
+	        return true if osis.indices[0] == index
+	    false
+
+	sort_osises: (osises) ->
+	    osises.sort((a, b) ->
+	        return -1 if a.indices[0] < b.indices[0]
+	        return  1 if a.indices[0] > b.indices[0]
+	        return  0
+	    )
+	    osises.length
+
 root.bcv_parser = bcv_parser
