@@ -669,7 +669,7 @@
       _ref = ["chapters", "numbers", "verses"];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
-        this.handle_extra(type, osises, s);
+        this.handle_extra(type, osises, this.s);
       }
       return osises;
     };

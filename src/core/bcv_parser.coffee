@@ -562,7 +562,7 @@ class bcv_parser
 		osises = @osis_and_indices()
 		# Do numbers before verses because numbers include a chapter and could change the context for the verses.
 		for type in ["chapters", "numbers", "verses"]
-			@handle_extra(type, osises, s)
+			@handle_extra(type, osises, @s)
 		osises
 
 	handle_extra: (type, osises, s) ->
