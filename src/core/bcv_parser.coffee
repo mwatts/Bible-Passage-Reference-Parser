@@ -554,15 +554,15 @@ class bcv_parser
 	## original credit goes to openbibleinfo
 	## see: https://github.com/openbibleinfo/Bible-Passage-Reference-Parser/issues/5#issuecomment-29864952
 
-	headless: ->
+	headless: (s) ->
 		@set_options
 		    sequence_combination_strategy: "separate"
 		    osis_compaction_strategy: "bc"
 		    case_sensitive: "books"
-		osises = @osis_and_indices()
+		osises = @parse(s).osis_and_indices()
 		# Do numbers before verses because numbers include a chapter and could change the context for the verses.
 		for type in ["chapters", "numbers", "verses"]
-			@handle_extra(type, osises, @s)
+			@handle_extra(type, osises, s)
 		osises
 
 	handle_extra: (type, osises, s) ->

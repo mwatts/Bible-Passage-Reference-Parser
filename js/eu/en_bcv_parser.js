@@ -658,18 +658,18 @@
       return true;
     };
 
-    bcv_parser.prototype.headless = function() {
+    bcv_parser.prototype.headless = function(s) {
       var osises, type, _i, _len, _ref;
       this.set_options({
         sequence_combination_strategy: "separate",
         osis_compaction_strategy: "bc",
         case_sensitive: "books"
       });
-      osises = this.osis_and_indices();
+      osises = this.parse(s).osis_and_indices();
       _ref = ["chapters", "numbers", "verses"];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         type = _ref[_i];
-        this.handle_extra(type, osises, this.s);
+        this.handle_extra(type, osises, s);
       }
       return osises;
     };
