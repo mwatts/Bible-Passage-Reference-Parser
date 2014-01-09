@@ -17,7 +17,7 @@ The bolded references, `John 11:25`, `John 10:10`, and `John 3:6`, are examples 
 js> load("path/to/en_bcv_parser.js")
 js> bcv = new bcv_parser()
 js> s = "string you want to parse"
-js> bcv.parse(s).headless()
+js> bcv.headless(s)
 ```
 
 #### TODO:
